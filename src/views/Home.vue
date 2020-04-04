@@ -30,13 +30,20 @@
                   <p>target: {{item.sendType === 'personal'?"":"Group "}}{{item.target}}</p>
                 </div>
               </zi-tooltip>
+              <trash @click="trash(item)" />
             </div>
             <h6 class="info">{{Number(item.mid) | date}}</h6>
           </zi-row>
         </div>
       </zi-collapse-item>
     </zi-collapse>
-    <div></div>
+    <zi-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      :beforeDone="dialogDone"
+      done="确认"
+      cancel="取消"
+    ></zi-dialog>
   </div>
 </template>
 
@@ -46,6 +53,7 @@ import settings from "@zeit-ui/vue-icons/packages/settings";
 import copy from "@zeit-ui/vue-icons/packages/copy";
 import link from "@zeit-ui/vue-icons/packages/link";
 import alertCircle from "@zeit-ui/vue-icons/packages/alert-circle";
+import trash from "@zeit-ui/vue-icons/packages/trash";
 export default {
   name: "Home",
   components: {
@@ -53,17 +61,21 @@ export default {
     settings,
     copy,
     linkIcon: link,
-    alertCircle
+    alertCircle,
+    trash
   },
   data() {
     return {
       expend: "",
+      dialogVisible: false,
+      dialogTitle: "",
+      dialogDone: () => {},
       search: ""
     };
   },
   computed: {
     messageList() {
-      return this.$store.state.messages.reverse();
+      return this.$store.state.messages;
     },
     showList() {
       if (this.search) {
@@ -103,6 +115,23 @@ export default {
           text: `复制失败,内容为空`
         });
       }
+    },
+    trash(message) {
+      this.comfirm("确认要删除?", () => {
+        this.$store.commit({
+          type: "deleteMessage",
+          message
+        });
+        this.$messagesdb.del(message.mid);
+      });
+    },
+    comfirm(text, done) {
+      this.dialogTitle = text;
+      this.dialogVisible = true;
+      this.dialogDone = () => {
+        this.dialogVisible = false;
+        done();
+      };
     }
   }
 };

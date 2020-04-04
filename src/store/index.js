@@ -12,7 +12,13 @@ export default new Vuex.Store({
       this.state.messages = payload.messages;
     },
     putMessage(state, payload) {
-      this.state.messages.push(payload.message);
+      this.state.messages.unshift(payload.message);
+    },
+    deleteMessage(state, payload) {
+      this.state.messages.splice(
+        this.state.messages.indexOf(payload.message),
+        1
+      );
     }
   },
   actions: {},

@@ -17,7 +17,7 @@ export default {
       .on("end", () => {
         this.$store.commit({
           type: "initMessages",
-          messages
+          messages: messages.reverse()
         });
       });
     this.$ebus.$on("MESSAGE", packet => {

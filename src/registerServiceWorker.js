@@ -1,32 +1,40 @@
 /* eslint-disable no-console */
 
-import { register } from 'register-service-worker'
+import { register } from "register-service-worker";
 
-if (process.env.NODE_ENV === 'production') {
+export function registerServiceWorker(ebus) {
   register(`${process.env.BASE_URL}service-worker.js`, {
-    ready () {
+    ready(sw) {
       console.log(
-        'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB'
-      )
+        "App is being served from cache by a service worker.\n" +
+          "For more details, visit https://goo.gl/AFskqB"
+      );
     },
-    registered () {
-      console.log('Service worker has been registered.')
+    registered(registration) {
+      console.log("Service worker has been registered.");
+      ebus.$emit("swregistered", registration);
     },
-    cached () {
-      console.log('Content has been cached for offline use.')
+    cached() {
+      console.log("Content has been cached for offline use.");
     },
-    updatefound () {
-      console.log('New content is downloading.')
+    updatefound() {
+      console.log("New content is downloading.");
     },
-    updated () {
-      console.log('New content is available; please refresh.')
+    updated() {
+      ebus.$Toast.show({
+        type: "info",
+        text: "Page is updated; please refresh.",
+      });
     },
-    offline () {
-      console.log('No internet connection found. App is running in offline mode.')
+    offline() {
+      ebus.$emit("offline");
+      ebus.$Toast.show({
+        type: "warning",
+        text: "No internet connection found.",
+      });
     },
-    error (error) {
-      console.error('Error during service worker registration:', error)
-    }
-  })
+    error(error) {
+      console.error("Error during service worker registration:", error);
+    },
+  });
 }

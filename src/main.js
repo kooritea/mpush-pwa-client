@@ -1,6 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
-import "./registerServiceWorker";
+import { registerServiceWorker } from "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
 import levelup from "levelup";
@@ -18,15 +18,21 @@ install(Vue);
 
 const ebus = new Vue();
 
+ebus.$on("swregistered", (registration) => {
+  Vue.prototype.$registration = registration;
+});
+
+registerServiceWorker(ebus);
+
 Vue.config.productionTip = false;
 Vue.prototype.$ebus = ebus;
 Vue.prototype.$messagesdb = levelup(
   encode(
     leveljs("messages", {
-      prefix: ""
+      prefix: "",
     }),
     {
-      valueEncoding: "json"
+      valueEncoding: "json",
     }
   )
 );
@@ -36,7 +42,7 @@ Vue.prototype.$mpushClient = new MpushClient(
     token: localStorage.getItem("token") || "",
     name: localStorage.getItem("name") || "",
     group: localStorage.getItem("group") || "",
-    fcm: localStorage.getItem("fcm") === "true"
+    fcm: localStorage.getItem("fcm") === "true",
   },
   ebus
 );
@@ -44,7 +50,7 @@ Vue.prototype.$mpushClient = new MpushClient(
 new Vue({
   router,
   store,
-  render: function(h) {
+  render: function (h) {
     return h(App);
-  }
+  },
 }).$mount("#app");

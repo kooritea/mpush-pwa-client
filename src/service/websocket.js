@@ -4,18 +4,27 @@ export class MpushClient {
     this.ebus = ebus;
     this.isAuth = false;
     this.isAuthError = false;
+    this.isOffline = false;
     this.ws = null;
-
+    this.registration = this.ebus.$registration;
     this.connect();
-    this.ebus.$on("refreshConfig", config => {
+    this.ebus.$on("refreshConfig", (config) => {
       this.isAuthError = false;
       this.config = config;
       this.connect();
     });
+    this.ebus.$on("offline", () => {
+      this.isOffline = true;
+    });
   }
 
   connect() {
-    if (!this.config.url || !this.config.name || this.isAuthError) {
+    if (
+      !this.config.url ||
+      !this.config.name ||
+      this.isAuthError ||
+      this.isOffline
+    ) {
       return;
     }
     try {
@@ -27,8 +36,8 @@ export class MpushClient {
             data: {
               token: this.config.token,
               name: this.config.name,
-              group: this.config.group
-            }
+              group: this.config.group,
+            },
           })
         );
       };
@@ -63,8 +72,8 @@ export class MpushClient {
         this.send({
           cmd: "MESSAGE_CALLBACK",
           data: {
-            mid: packet.data.mid
-          }
+            mid: packet.data.mid,
+          },
         });
         break;
     }
@@ -83,12 +92,69 @@ export class MpushClient {
   toast(type, text) {
     this.ebus.$Toast.show({
       type,
-      text
+      text,
     });
   }
-  registerFCM() {
+  async registerFCM() {
+    if (window.PushManager == null || navigator.serviceWorker == null) {
+      this.toast("error", "当前浏览器不支持消息通知");
+      return;
+    }
+    if (!this.registration) {
+      this.ebus.$once("swregistered", (registration) => {
+        this.registration = registration;
+        this.registerFCM();
+      });
+      return;
+    }
+    let pushSubscription = await this.registration.pushManager.getSubscription();
     if (this.config.fcm) {
+      this.ebus.$once("REGISTER_FCM", async (data) => {
+        if (pushSubscription) {
+          let oldKey = uint8ArrayToBase64(
+            pushSubscription.options.applicationServerKey
+          );
+          let newKey =
+            data.applicationServerKey.replace(/-/g, "+").replace(/_/g, "/") +
+            "=";
+          if (oldKey === newKey) {
+            return;
+          } else {
+            this.toast("info", "重新注册FCM");
+            await pushSubscription.unsubscribe();
+          }
+        }
+        this.registration.pushManager
+          .subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: base64ToUint8Array(data.applicationServerKey),
+          })
+          .then((pushSubscription) => {
+            this.send({
+              cmd: "REGISTER_FCM_2",
+              data: pushSubscription,
+            });
+          });
+      });
+      this.send({
+        cmd: "REGISTER_FCM",
+      });
     } else {
+      await pushSubscription.unsubscribe();
     }
   }
+}
+
+function base64ToUint8Array(base64String) {
+  let padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  let rawData = atob(base64);
+  let outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+function uint8ArrayToBase64(arr) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(arr)));
 }

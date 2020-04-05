@@ -11,8 +11,8 @@ export function registerServiceWorker(ebus) {
       );
     },
     registered(registration) {
-      console.log("Service worker has been registered.");
       ebus.$emit("swregistered", registration);
+      console.log("Service worker has been registered.");
     },
     cached() {
       console.log("Content has been cached for offline use.");

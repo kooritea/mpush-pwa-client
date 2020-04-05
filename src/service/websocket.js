@@ -96,51 +96,60 @@ export class MpushClient {
     });
   }
   async registerFCM() {
-    if (window.PushManager == null || navigator.serviceWorker == null) {
-      this.toast("error", "当前浏览器不支持消息通知");
-      return;
-    }
-    if (!this.registration) {
-      this.ebus.$once("swregistered", (registration) => {
-        this.registration = registration;
-        this.registerFCM();
-      });
-      return;
-    }
-    let pushSubscription = await this.registration.pushManager.getSubscription();
-    if (this.config.fcm) {
-      this.ebus.$once("REGISTER_FCM", async (data) => {
-        if (pushSubscription) {
-          let oldKey = uint8ArrayToBase64(
-            pushSubscription.options.applicationServerKey
-          );
-          let newKey =
-            data.applicationServerKey.replace(/-/g, "+").replace(/_/g, "/") +
-            "=";
-          if (oldKey === newKey) {
-            return;
-          } else {
-            this.toast("info", "重新注册FCM");
-            await pushSubscription.unsubscribe();
-          }
-        }
-        this.registration.pushManager
-          .subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: base64ToUint8Array(data.applicationServerKey),
-          })
-          .then((pushSubscription) => {
+    try {
+      if (window.PushManager == null || navigator.serviceWorker == null) {
+        this.toast(
+          "error",
+          `当前浏览器不支持消息通知:${typeof window.PushManager} ${typeof navigator.serviceWorker}`
+        );
+        return;
+      }
+
+      let pushSubscription = await this.registration.pushManager.getSubscription();
+      if (this.config.fcm) {
+        this.ebus.$once("REGISTER_FCM", async (data) => {
+          try {
+            if (pushSubscription) {
+              let oldKey = uint8ArrayToBase64(
+                pushSubscription.options.applicationServerKey
+              );
+              let newKey =
+                data.applicationServerKey
+                  .replace(/-/g, "+")
+                  .replace(/_/g, "/") + "=";
+              if (oldKey === newKey) {
+                return;
+              } else {
+                this.toast("info", "重新注册FCM");
+                await pushSubscription.unsubscribe();
+              }
+            }
+            const newPushSubscription = await this.registration.pushManager.subscribe(
+              {
+                userVisibleOnly: true,
+                applicationServerKey: base64ToUint8Array(
+                  data.applicationServerKey
+                ),
+              }
+            );
             this.send({
               cmd: "REGISTER_FCM_2",
-              data: pushSubscription,
+              data: newPushSubscription,
             });
-          });
-      });
-      this.send({
-        cmd: "REGISTER_FCM",
-      });
-    } else {
-      await pushSubscription.unsubscribe();
+          } catch (e) {
+            this.toast("error", `注册FCM出错: ${e}`);
+          }
+        });
+        this.send({
+          cmd: "REGISTER_FCM",
+        });
+      } else {
+        if (pushSubscription) {
+          pushSubscription.unsubscribe();
+        }
+      }
+    } catch (e) {
+      this.toast("error", `注册FCM出错: ${e}`);
     }
   }
 }

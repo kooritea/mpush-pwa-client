@@ -18,12 +18,6 @@ install(Vue);
 
 const ebus = new Vue();
 
-ebus.$on("swregistered", (registration) => {
-  Vue.prototype.$registration = registration;
-});
-
-registerServiceWorker(ebus);
-
 Vue.config.productionTip = false;
 Vue.prototype.$ebus = ebus;
 Vue.prototype.$messagesdb = levelup(
@@ -36,16 +30,34 @@ Vue.prototype.$messagesdb = levelup(
     }
   )
 );
-Vue.prototype.$mpushClient = new MpushClient(
-  {
-    url: localStorage.getItem("url") || "",
-    token: localStorage.getItem("token") || "",
-    name: localStorage.getItem("name") || "",
-    group: localStorage.getItem("group") || "",
-    fcm: localStorage.getItem("fcm") === "true",
-  },
-  ebus
-);
+if (window.PushManager == null || navigator.serviceWorker == null) {
+  Vue.prototype.$mpushClient = new MpushClient(
+    {
+      url: localStorage.getItem("url") || "",
+      token: localStorage.getItem("token") || "",
+      name: localStorage.getItem("name") || "",
+      group: localStorage.getItem("group") || "",
+      fcm: localStorage.getItem("fcm") === "true",
+    },
+    ebus
+  );
+} else {
+  ebus.$on("swregistered", (registration) => {
+    Vue.prototype.$registration = registration;
+    Vue.prototype.$mpushClient = new MpushClient(
+      {
+        url: localStorage.getItem("url") || "",
+        token: localStorage.getItem("token") || "",
+        name: localStorage.getItem("name") || "",
+        group: localStorage.getItem("group") || "",
+        fcm: localStorage.getItem("fcm") === "true",
+      },
+      ebus
+    );
+  });
+
+  registerServiceWorker(ebus);
+}
 
 new Vue({
   router,

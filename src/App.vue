@@ -38,4 +38,18 @@ export default {
     max-width: unset !important;
   }
 }
+.zi-toast-area:hover {
+  .zi-toast-container:nth-last-child(2) {
+    animation: unset;
+    transform: translate3d(0, -80px, 0) scale(1);
+  }
+  .zi-toast-container:nth-last-child(3) {
+    animation: unset;
+    transform: translate3d(0, -160px, 0) scale(1);
+  }
+  .zi-toast-container:nth-last-child(4) {
+    animation: unset;
+    transform: translate3d(0, -240px, 0) scale(1);
+  }
+}
 </style>

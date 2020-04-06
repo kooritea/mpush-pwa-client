@@ -7,7 +7,7 @@
     </div>
     <div class="handles">
       <zi-row>
-        <zi-input class="input-handle" v-model="url" prefix-label="URL"></zi-input>
+        <zi-input class="input-handle" v-model="url" prefix-label="WebsocketURL"></zi-input>
       </zi-row>
       <zi-row>
         <zi-input class="input-handle" v-model="token" prefix-label="Token"></zi-input>
@@ -23,6 +23,9 @@
         FCM推送
         <zi-toggle v-model="fcm"></zi-toggle>
       </zi-row>
+      <!-- <zi-row v-if="fcm">
+        <zi-input class="input-handle" v-model="httpurl" prefix-label="HttpURL"></zi-input>
+      </zi-row>-->
       <zi-button class="save" @click="save()" shadow type="success">应用</zi-button>
     </div>
   </div>
@@ -38,7 +41,8 @@ export default {
       token: "",
       name: "",
       group: "",
-      fcm: false
+      fcm: false,
+      httpurl: ""
     };
   },
   methods: {
@@ -49,6 +53,7 @@ export default {
         localStorage.setItem("name", this.name);
         localStorage.setItem("group", this.group);
         localStorage.setItem("fcm", this.fcm ? "true" : "false");
+        localStorage.setItem("httpurl", this.httpurl);
         this.$Toast.show({
           type: "success",
           text: `保存成功`
@@ -58,7 +63,8 @@ export default {
           token: this.token,
           name: this.name,
           group: this.group,
-          fcm: this.fcm
+          fcm: this.fcm,
+          httpurl: this.httpurl
         });
       } else {
         this.$Toast.show({

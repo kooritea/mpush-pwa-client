@@ -6,7 +6,7 @@ import store from "./store";
 import levelup from "levelup";
 import encode from "encoding-down";
 import leveljs from "level-js";
-import { MpushClient } from "./service/websocket";
+
 import "./extra";
 import ZeitUI from "@zeit-ui/vue";
 import "@zeit-ui/vue/dist/zeit-ui.css";
@@ -31,38 +31,23 @@ Vue.prototype.$messagesdb = levelup(
   )
 );
 if (window.PushManager == null || navigator.serviceWorker == null) {
-  Vue.prototype.$mpushClient = new MpushClient(
-    {
-      url: localStorage.getItem("url") || "",
-      token: localStorage.getItem("token") || "",
-      name: localStorage.getItem("name") || "",
-      group: localStorage.getItem("group") || "",
-      fcm: localStorage.getItem("fcm") === "true",
+  new Vue({
+    router,
+    store,
+    render: function (h) {
+      return h(App);
     },
-    ebus
-  );
+  }).$mount("#app");
 } else {
   ebus.$on("swregistered", (registration) => {
     Vue.prototype.$registration = registration;
-    Vue.prototype.$mpushClient = new MpushClient(
-      {
-        url: localStorage.getItem("url") || "",
-        token: localStorage.getItem("token") || "",
-        name: localStorage.getItem("name") || "",
-        group: localStorage.getItem("group") || "",
-        fcm: localStorage.getItem("fcm") === "true",
+    new Vue({
+      router,
+      store,
+      render: function (h) {
+        return h(App);
       },
-      ebus
-    );
+    }).$mount("#app");
   });
-
   registerServiceWorker(ebus);
 }
-
-new Vue({
-  router,
-  store,
-  render: function (h) {
-    return h(App);
-  },
-}).$mount("#app");

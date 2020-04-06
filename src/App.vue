@@ -5,8 +5,23 @@
 </template>
 
 <script>
+import { MpushClient } from "./service/websocket";
 export default {
   name: "App",
+  methods: {
+    createMpushClient() {
+      new MpushClient(
+        {
+          url: localStorage.getItem("url") || "",
+          token: localStorage.getItem("token") || "",
+          name: localStorage.getItem("name") || "",
+          group: localStorage.getItem("group") || "",
+          fcm: localStorage.getItem("fcm") === "true"
+        },
+        this.$ebus
+      );
+    }
+  },
   async created() {
     const messages = [];
     this.$messagesdb
@@ -19,13 +34,27 @@ export default {
           type: "initMessages",
           messages: messages.reverse()
         });
+        this.createMpushClient();
       });
     this.$ebus.$on("MESSAGE", packet => {
-      this.$messagesdb.put(packet.mid, packet);
-      this.$store.commit({
-        type: "putMessage",
-        message: packet
-      });
+      if (
+        !this.$store.state.messages[0] ||
+        (this.$store.state.messages[0] &&
+          packet.mid !== this.$store.state.messages[0].mid)
+      ) {
+        this.$messagesdb.put(packet.mid, packet);
+        this.$store.commit({
+          type: "putMessage",
+          message: packet
+        });
+      }
+    });
+    this.$ebus.$on("worker-set-data", packet => {
+      navigator.serviceWorker.controller &&
+        navigator.serviceWorker.controller.postMessage({
+          cmd: "set-data",
+          data: packet
+        });
     });
   }
 };

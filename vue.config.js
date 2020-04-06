@@ -10,6 +10,7 @@ module.exports = {
     workboxPluginMode: "InjectManifest",
     workboxOptions: {
       swSrc: "src/service-worker.js",
+      importWorkboxFrom: "disabled",
     },
     iconPaths: {
       favicon32: "img/icons/128.png",

@@ -61,6 +61,19 @@ export class MpushClient {
       case "AUTH":
         if (packet.data.code === 200) {
           this.isAuth = true;
+          localStorage.setItem("auth", packet.data.auth);
+          // this.ebus.$emit("worker-set-data", {
+          //   key: "auth",
+          //   value: packet.data.auth,
+          // });
+          // this.ebus.$emit("worker-set-data", {
+          //   key: "token",
+          //   value: this.config.token,
+          // });
+          // this.ebus.$emit("worker-set-data", {
+          //   key: "httpurl",
+          //   value: this.config.httpurl,
+          // });
           this.toast("success", "websocket连接成功");
           this.registerFCM();
         } else {
@@ -121,7 +134,9 @@ export class MpushClient {
                 return;
               } else {
                 this.toast("info", "重新注册FCM");
-                await pushSubscription.unsubscribe();
+                if (pushSubscription) {
+                  await pushSubscription.unsubscribe();
+                }
               }
             }
             const newPushSubscription = await this.registration.pushManager.subscribe(

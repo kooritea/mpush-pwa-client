@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 
 import { register } from "register-service-worker";
-
 export function registerServiceWorker(ebus) {
   register(`${process.env.BASE_URL}service-worker.js`, {
     ready(sw) {

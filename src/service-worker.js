@@ -1,3 +1,7 @@
+importScripts(
+  "https://cdn.jsdelivr.net/npm/workbox-sw@4.3.1/build/workbox-sw.min.js",
+  "./IndexeddbStorage.js"
+);
 if (workbox) {
   console.log(`Yay! Workbox is loaded!`);
 } else {
@@ -58,25 +62,65 @@ workbox.routing.registerRoute(
     ],
   })
 );
+function ajax({ method, url, data, headers }) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    if (headers) {
+      for (let header in headers) {
+        xhr.setRequestHeader(header, headers[header]);
+      }
+    }
+    xhr.responseType = "json";
+    xhr.onreadystatechange = () => {
+      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject({
+          code: this.status,
+          text: this.responseText,
+        });
+      }
+    };
+    xhr.send(JSON.stringify(data));
+  });
+}
+self.addEventListener("message", function (event) {
+  const promise = new Promise(async (resolve, reject) => {
+    const packet = event.data;
+    switch (packet.cmd) {
+      case "set-data":
+        const storage = new IndexedDBStorage();
+        await storage.open("config");
+        await storage.setItem(packet.data.key, packet.data.value);
+        break;
+    }
+    resolve();
+  });
+  event.waitUntil(promise);
+});
 self.addEventListener("push", function (e) {
   if (!e.data) {
     return;
   }
 
   // 解析获取推送消息
-  let payload = e.data.json();
+  let payload = e.data.json(); // MessageServerSocketPacket
   // 根据推送消息生成桌面通知并展现出来
-  let promise = clients.matchAll().then((list) => {
-    return self.registration.showNotification(payload.message.text, {
-      body: payload.message.desp,
-      icon: "./img/icons/128.png",
-      badge: "./img/icons/128.png",
-      data: {
-        url: "./",
-        scheme: payload.message.extra.scheme,
-        inPage: list.length > 0,
-      },
-    });
+  let promise = new Promise(async (resolve, reject) => {
+    const list = await clients.matchAll();
+    if (payload.cmd === "MESSAGE") {
+      await self.registration.showNotification(payload.data.message.text, {
+        body: payload.data.message.desp,
+        icon: "./img/icons/128.png",
+        badge: "./img/icons/128.png",
+        data: {
+          url: "./",
+          scheme: payload.data.message.extra.scheme,
+          inPage: list.length > 0,
+        },
+      });
+    }
   });
   e.waitUntil(promise);
 });

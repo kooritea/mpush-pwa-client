@@ -99,6 +99,8 @@ export class MpushClient {
           },
         });
         break;
+      case "INFO":
+        this.toast("info", packet.data);
     }
     this.ebus.$emit(packet.cmd, packet.data);
   }

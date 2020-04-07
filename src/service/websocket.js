@@ -35,6 +35,7 @@ export class MpushClient {
     try {
       if (this.ws) {
         try {
+          this.ws.onclose = null;
           this.ws.close();
         } catch (e) {}
       }

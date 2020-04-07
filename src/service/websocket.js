@@ -16,6 +16,11 @@ export class MpushClient {
     this.ebus.$on("offline", () => {
       this.isOffline = true;
     });
+    setInterval(() => {
+      this.send({
+        cmd: "PING",
+      });
+    }, 30000);
   }
 
   connect() {
@@ -28,6 +33,11 @@ export class MpushClient {
       return;
     }
     try {
+      if (this.ws) {
+        try {
+          this.ws.close();
+        } catch (e) {}
+      }
       this.ws = new WebSocket(this.config.url);
       this.ws.onopen = () => {
         this.ws.send(

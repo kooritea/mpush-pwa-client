@@ -85,7 +85,7 @@ function ajax({ method, url, data, headers }) {
     xhr.send(JSON.stringify(data));
   });
 }
-self.addEventListener("message", function (event) {
+self.addEventListener("message", function(event) {
   const promise = new Promise(async (resolve, reject) => {
     const packet = event.data;
     switch (packet.cmd) {
@@ -99,7 +99,8 @@ self.addEventListener("message", function (event) {
   });
   event.waitUntil(promise);
 });
-self.addEventListener("push", function (e) {
+self.addEventListener("push", function(e) {
+  console.log(e);
   if (!e.data) {
     return;
   }
@@ -124,7 +125,7 @@ self.addEventListener("push", function (e) {
   });
   e.waitUntil(promise);
 });
-self.addEventListener("notificationclick", function (e) {
+self.addEventListener("notificationclick", function(e) {
   // 关闭通知
   e.notification.close();
   // 打开网页

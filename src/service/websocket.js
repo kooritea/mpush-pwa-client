@@ -7,6 +7,7 @@ export class MpushClient {
     this.isOffline = false;
     this.ws = null;
     this.registration = this.ebus.$registration;
+    this.applicationServerKey = "";
     this.connect();
     this.ebus.$on("refreshConfig", (config) => {
       this.isAuthError = false;
@@ -85,6 +86,7 @@ export class MpushClient {
           //   key: "httpurl",
           //   value: this.config.httpurl,
           // });
+          this.applicationServerKey = packet.data.fcmServerKey;
           this.toast("success", "websocket连接成功");
           this.registerFCM();
         } else {
@@ -130,46 +132,33 @@ export class MpushClient {
         );
         return;
       }
-
       let pushSubscription = await this.registration.pushManager.getSubscription();
       if (this.config.fcm) {
-        this.ebus.$once("REGISTER_FCM", async (data) => {
-          try {
+        if (pushSubscription) {
+          let oldKey = uint8ArrayToBase64(
+            pushSubscription.options.applicationServerKey
+          );
+          let newKey =
+            this.applicationServerKey.replace(/-/g, "+").replace(/_/g, "/") +
+            "=";
+          if (oldKey === newKey) {
+            return;
+          } else {
+            this.toast("info", "重新注册FCM");
             if (pushSubscription) {
-              let oldKey = uint8ArrayToBase64(
-                pushSubscription.options.applicationServerKey
-              );
-              let newKey =
-                data.applicationServerKey
-                  .replace(/-/g, "+")
-                  .replace(/_/g, "/") + "=";
-              if (oldKey === newKey) {
-                return;
-              } else {
-                this.toast("info", "重新注册FCM");
-                if (pushSubscription) {
-                  await pushSubscription.unsubscribe();
-                }
-              }
+              await pushSubscription.unsubscribe();
             }
-            const newPushSubscription = await this.registration.pushManager.subscribe(
-              {
-                userVisibleOnly: true,
-                applicationServerKey: base64ToUint8Array(
-                  data.applicationServerKey
-                ),
-              }
-            );
-            this.send({
-              cmd: "REGISTER_FCM_2",
-              data: newPushSubscription,
-            });
-          } catch (e) {
-            this.toast("error", `注册FCM出错: ${e}`);
           }
-        });
+        }
+        const newPushSubscription = await this.registration.pushManager.subscribe(
+          {
+            userVisibleOnly: true,
+            applicationServerKey: base64ToUint8Array(this.applicationServerKey),
+          }
+        );
         this.send({
           cmd: "REGISTER_FCM",
+          data: newPushSubscription,
         });
       } else {
         if (pushSubscription) {
@@ -178,6 +167,7 @@ export class MpushClient {
       }
     } catch (e) {
       this.toast("error", `注册FCM出错: ${e}`);
+      console.log(e);
     }
   }
 }

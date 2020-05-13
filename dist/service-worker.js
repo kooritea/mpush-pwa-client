@@ -1,4 +1,4 @@
-importScripts("precache-manifest.b305737cc6af5fd4faf9d3799328a7ee.js");
+importScripts("precache-manifest.bb1d495e6729ff12225e53a280e3030b.js");
 
 importScripts(
   "https://cdn.jsdelivr.net/npm/workbox-sw@4.3.1/build/workbox-sw.min.js",
@@ -74,7 +74,7 @@ function postData(url, data) {
       "content-type": "application/json",
     },
     method: "POST", // *GET, POST, PUT, DELETE, etc.
-    mode: "cors", // no-cors, cors, *same-origin
+    // mode: "cors", // no-cors, cors, *same-origin
     redirect: "follow", // manual, *follow, error
     referrer: "no-referrer", // *client, no-referrer
   }).then((response) => response.json()); // parses response to JSON

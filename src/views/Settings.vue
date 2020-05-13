@@ -24,7 +24,12 @@
         <zi-toggle v-model="fcm"></zi-toggle>
       </zi-row>
       <zi-row v-if="fcm">
-        <zi-input class="input-handle" v-model="httpurl" prefix-label="HttpURL"></zi-input>
+        <zi-input
+          class="input-handle"
+          v-model="httpurl"
+          placeholder="如果服务端打开了fcm.comfirmMode则这项必填"
+          prefix-label="HttpURL"
+        ></zi-input>
       </zi-row>
       <zi-button class="save" @click="save()" shadow type="success">应用</zi-button>
     </div>
@@ -46,7 +51,17 @@ export default {
     };
   },
   methods: {
-    save() {
+    async save() {
+      if (this.httpurl) {
+        const test = await this.testHTTPurl();
+        if (test !== true) {
+          this.$Toast.show({
+            type: "error",
+            text: `http接口无法访问:${test.message}`
+          });
+          return;
+        }
+      }
       if (this.url && this.name) {
         localStorage.setItem("url", this.url);
         localStorage.setItem("token", this.token);
@@ -72,6 +87,25 @@ export default {
           text: `[${this.url ? "name" : "url"}]不能为空`
         });
       }
+    },
+    testHTTPurl() {
+      return new Promise(resolve => {
+        fetch(this.httpurl, {
+          body: JSON.stringify({
+            cmd: "TEST_HTTP"
+          }),
+          method: "POST",
+          headers: {
+            "content-type": "application/json"
+          }
+        })
+          .then(() => {
+            resolve(true);
+          })
+          .catch(e => {
+            resolve(e);
+          });
+      });
     }
   },
   created() {

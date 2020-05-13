@@ -1,4 +1,4 @@
-importScripts("precache-manifest.e9b04250c628a9afaee6edb19394f373.js");
+importScripts("precache-manifest.b305737cc6af5fd4faf9d3799328a7ee.js");
 
 importScripts(
   "https://cdn.jsdelivr.net/npm/workbox-sw@4.3.1/build/workbox-sw.min.js",
@@ -64,28 +64,20 @@ workbox.routing.registerRoute(
     ],
   })
 );
-function ajax({ method, url, data, headers }) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
-    if (headers) {
-      for (let header in headers) {
-        xhr.setRequestHeader(header, headers[header]);
-      }
-    }
-    xhr.responseType = "json";
-    xhr.onreadystatechange = () => {
-      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
-        resolve(xhr.response);
-      } else {
-        reject({
-          code: this.status,
-          text: this.responseText,
-        });
-      }
-    };
-    xhr.send(JSON.stringify(data));
-  });
+function postData(url, data) {
+  // Default options are marked with *
+  return fetch(url, {
+    body: JSON.stringify(data), // must match 'Content-Type' header
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, same-origin, *omit
+    headers: {
+      "content-type": "application/json",
+    },
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, cors, *same-origin
+    redirect: "follow", // manual, *follow, error
+    referrer: "no-referrer", // *client, no-referrer
+  }).then((response) => response.json()); // parses response to JSON
 }
 self.addEventListener("message", function(event) {
   const promise = new Promise(async (resolve, reject) => {
@@ -94,7 +86,9 @@ self.addEventListener("message", function(event) {
       case "set-data":
         const storage = new IndexedDBStorage();
         await storage.open("config");
-        await storage.setItem(packet.data.key, packet.data.value);
+        for (let key in packet.data) {
+          await storage.setItem(key, packet.data[key]);
+        }
         break;
     }
     resolve();
@@ -102,7 +96,6 @@ self.addEventListener("message", function(event) {
   event.waitUntil(promise);
 });
 self.addEventListener("push", function(e) {
-  console.log(e);
   if (!e.data) {
     return;
   }
@@ -124,6 +117,20 @@ self.addEventListener("push", function(e) {
         },
       });
     }
+    const storage = new IndexedDBStorage();
+    await storage.open("config");
+    let httpurl = await storage.getItem("httpurl");
+    let auth = await storage.getItem("auth");
+    if (httpurl) {
+      const res = await postData(httpurl, {
+        cmd: "MESSAGE_FCM_CALLBACK",
+        auth,
+        data: {
+          mid: payload.data.mid,
+        },
+      });
+    }
+    resolve();
   });
   e.waitUntil(promise);
 });

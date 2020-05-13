@@ -16,7 +16,8 @@ export default {
           token: localStorage.getItem("token") || "",
           name: localStorage.getItem("name") || "",
           group: localStorage.getItem("group") || "",
-          fcm: localStorage.getItem("fcm") === "true"
+          fcm: localStorage.getItem("fcm") === "true",
+          httpurl: localStorage.getItem("httpurl") || ""
         },
         this.$ebus
       );

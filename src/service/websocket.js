@@ -74,18 +74,11 @@ export class MpushClient {
         if (packet.data.code === 200) {
           this.isAuth = true;
           localStorage.setItem("auth", packet.data.auth);
-          // this.ebus.$emit("worker-set-data", {
-          //   key: "auth",
-          //   value: packet.data.auth,
-          // });
-          // this.ebus.$emit("worker-set-data", {
-          //   key: "token",
-          //   value: this.config.token,
-          // });
-          // this.ebus.$emit("worker-set-data", {
-          //   key: "httpurl",
-          //   value: this.config.httpurl,
-          // });
+          this.ebus.$emit("worker-set-data", {
+            auth: packet.data.auth,
+            token: this.config.token,
+            httpurl: this.config.httpurl,
+          });
           this.applicationServerKey = packet.data.fcmServerKey;
           this.toast("success", "websocket连接成功");
           this.registerFCM();

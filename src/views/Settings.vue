@@ -23,9 +23,9 @@
         FCM推送
         <zi-toggle v-model="fcm"></zi-toggle>
       </zi-row>
-      <!-- <zi-row v-if="fcm">
+      <zi-row v-if="fcm">
         <zi-input class="input-handle" v-model="httpurl" prefix-label="HttpURL"></zi-input>
-      </zi-row>-->
+      </zi-row>
       <zi-button class="save" @click="save()" shadow type="success">应用</zi-button>
     </div>
   </div>
@@ -80,6 +80,7 @@ export default {
     this.name = localStorage.getItem("name") || "";
     this.group = localStorage.getItem("group") || "";
     this.fcm = localStorage.getItem("fcm") === "true";
+    this.httpurl = localStorage.getItem("httpurl") || "";
   }
 };
 </script>

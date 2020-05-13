@@ -16,7 +16,7 @@ class IndexedDBStorage {
         this.db = db;
         resolve();
       };
-      request.onupgradeneeded = function (event) {
+      request.onupgradeneeded = function(event) {
         const db = event.target.result;
         if (!db.objectStoreNames.contains(name)) {
           let objectStore = db.createObjectStore(name, {
@@ -31,22 +31,22 @@ class IndexedDBStorage {
   setItem(key, value) {
     return new Promise(async (resolve, reject) => {
       let result;
-      if (await this.getItem(key)) {
+      if ((await this.getItem(key)) !== undefined) {
         result = this.db
           .transaction([this.name], "readwrite")
           .objectStore(this.name)
-          .put({ key, value });
+          .put({ key, value: value === undefined ? null : value });
       } else {
         result = this.db
           .transaction([this.name], "readwrite")
           .objectStore(this.name)
-          .add({ key, value });
+          .add({ key, value: value === undefined ? null : value });
       }
-      result.onsuccess = function (event) {
+      result.onsuccess = function(event) {
         resolve();
       };
 
-      result.onerror = function (event) {
+      result.onerror = function(event) {
         reject(event);
       };
     });
@@ -56,10 +56,10 @@ class IndexedDBStorage {
       const transaction = this.db.transaction([this.name]);
       const objectStore = transaction.objectStore(this.name);
       const request = objectStore.get(key);
-      request.onerror = function (event) {
+      request.onerror = function(event) {
         reject();
       };
-      request.onsuccess = function (event) {
+      request.onsuccess = function(event) {
         resolve(request.result ? request.result.value : undefined);
       };
     });

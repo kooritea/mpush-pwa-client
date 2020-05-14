@@ -8,16 +8,16 @@
         <settings class="setting" />
       </router-link>
     </div>
-    <zi-collapse class="list" v-model="expend" :accordion="true">
-      <zi-collapse-item
-        v-for="item in showList"
-        :name="item.mid"
-        :key="item.mid"
-        :title="item.message.text || date(Number(item.mid))"
-      >
+    <div class="list">
+      <div class="list-item" v-for="item in showList" :key="item.mid" @click="expend = item.mid">
+        <div class="title" :class="{'title-expend':expend === item.mid}">
+          <span class="text">{{item.message.text || date(Number(item.mid))}}</span>
+          <span class="time">{{Number(item.mid) | date}}</span>
+        </div>
         <div class="desp">
-          <div class="markdown-body" v-html="markdown(item.message.desp)"></div>
-          <zi-row class="footer">
+          <div class="markdown-body" v-if="expend !== item.mid">{{item.message.desp}}</div>
+          <div class="markdown-body expend" v-else v-html="markdown(item.message.desp)"></div>
+          <zi-row class="footer" v-if="expend === item.mid">
             <div class="handle">
               <copy @click="copyHandle(item.message)" />
               <a target="_blank" :href="item.message.extra.scheme" v-if="item.message.extra.scheme">
@@ -32,11 +32,20 @@
               </zi-tooltip>
               <trash @click="trash(item)" />
             </div>
-            <h6 class="info">{{Number(item.mid) | date}}</h6>
           </zi-row>
         </div>
+      </div>
+    </div>
+    <!-- <zi-collapse class="list" v-model="expend" :accordion="true">
+      <zi-collapse-item
+        v-for="item in showList"
+        :name="item.mid"
+        :key="item.mid"
+        :title="item.message.text || date(Number(item.mid))"
+      >
+        
       </zi-collapse-item>
-    </zi-collapse>
+    </zi-collapse>-->
     <zi-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
@@ -153,9 +162,49 @@ export default {
 
 .list {
   padding: 0 20px;
+  .list-item {
+    border-bottom: 1px solid #000;
+    cursor: pointer;
+  }
+  .title {
+    height: 25px;
+    line-height: 25px;
+    display: flex;
+    .text {
+      font-size: 22px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .time {
+      float: right;
+      font-size: 15px;
+      color: #555;
+    }
+  }
+  .title-expend {
+    height: unset;
+    position: relative;
+    .text {
+      overflow: unset;
+      text-overflow: unset;
+      white-space: unset;
+      word-break: break-all;
+    }
+  }
   .desp {
     .markdown-body {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       margin-bottom: 10px;
+    }
+    .expend {
+      overflow: unset;
+      text-overflow: unset;
+      white-space: unset;
+      word-break: break-all;
     }
     .footer {
       align-items: center;
@@ -164,12 +213,6 @@ export default {
       }
       .handle .zi-tooltip {
         float: left;
-      }
-      .info {
-        flex: 1;
-        text-align: right;
-        margin: 0;
-        font-weight: unset;
       }
     }
   }

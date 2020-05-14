@@ -1,15 +1,25 @@
 <template>
   <div class="home">
     <div class="nav">
-      <zi-input class="search" clearable placeholder="search" v-model="search">
+      <zi-input
+        class="search"
+        clearable
+        placeholder="search"
+        v-model="search"
+        @focus="focusSearch = true"
+        @blur="focusSearch = false"
+        :class="{'search-blur':!focusSearch}"
+      >
         <searchIcon slot="prefixIcon" />
       </zi-input>
+      <zi-checkbox class="fold" v-model="fold">收起同类消息</zi-checkbox>
+
       <router-link to="settings">
         <settings class="setting" />
       </router-link>
     </div>
-    <div class="list">
-      <div class="list-item" v-for="item in showList" :key="item.mid" @click="expend = item.mid">
+    <ul class="list" v-if="search || !fold || focusSearch">
+      <li class="list-item" v-for="item in showList" :key="item.mid" @click="expend = item.mid">
         <div class="title" :class="{'title-expend':expend === item.mid}">
           <span class="text">{{item.message.text || date(Number(item.mid))}}</span>
           <span class="time">{{Number(item.mid) | date}}</span>
@@ -34,18 +44,62 @@
             </div>
           </zi-row>
         </div>
-      </div>
-    </div>
-    <!-- <zi-collapse class="list" v-model="expend" :accordion="true">
-      <zi-collapse-item
-        v-for="item in showList"
-        :name="item.mid"
-        :key="item.mid"
-        :title="item.message.text || date(Number(item.mid))"
+      </li>
+    </ul>
+    <ul class="list-fold" v-else>
+      <li
+        class="list-fold-group"
+        v-for="(group,index) in showListFold"
+        :key="group.key"
+        @click="foldExpend = group.key"
       >
-        
-      </zi-collapse-item>
-    </zi-collapse>-->
+        <div class="title">
+          <span class="text">{{group.key}}</span>
+        </div>
+        <ul class="list-fold-item-ul" v-if="foldExpend === group.key">
+          <li
+            v-for="(item,index) in group.data"
+            class="list-fold-item-li"
+            :key="item.mid"
+            @click="expend = item.mid"
+          >
+            <div class="desp">
+              <div
+                class="markdown-body list-fold-item-desp"
+                v-if="expend !== item.mid"
+              >{{item.message.desp || '无正文'}}</div>
+              <div
+                class="markdown-body list-fold-item-desp expend"
+                v-else
+                v-html="markdown(item.message.desp) || '无正文'"
+              ></div>
+              <span class="list-fold-item-time">{{Number(item.mid) | date}}</span>
+              <div style="clear:both"></div>
+            </div>
+            <zi-row class="footer" v-if="expend === item.mid">
+              <div class="handle">
+                <copy @click="copyHandle(item.message)" />
+                <a
+                  target="_blank"
+                  :href="item.message.extra.scheme"
+                  v-if="item.message.extra.scheme"
+                >
+                  <linkIcon />
+                </a>
+                <zi-tooltip>
+                  <alertCircle Click Trigger />
+                  <div slot="content" style="text-align:left">
+                    <p>from: {{item.from.method}} {{item.from.name}}</p>
+                    <p>target: {{item.sendType === 'personal'?"":"Group "}}{{item.target}}</p>
+                  </div>
+                </zi-tooltip>
+                <trash @click="trash(item)" />
+              </div>
+            </zi-row>
+          </li>
+        </ul>
+      </li>
+    </ul>
     <zi-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
@@ -79,7 +133,10 @@ export default {
       dialogVisible: false,
       dialogTitle: "",
       dialogDone: () => {},
-      search: ""
+      search: "",
+      focusSearch: false,
+      fold: false,
+      foldExpend: ""
     };
   },
   computed: {
@@ -97,6 +154,32 @@ export default {
       } else {
         return this.messageList;
       }
+    },
+    showListFold() {
+      const index = {};
+      for (const message of this.messageList) {
+        const key = message.message.text ? message.message.text : "无标题";
+        if (!index[message.message.text]) {
+          index[message.message.text] = {
+            data: [],
+            hasNew: false
+          };
+        }
+        index[message.message.text].data.push(message);
+        index[message.message.text].hasNew = message.isNew
+          ? true
+          : index[message.message.text].hasNew;
+      }
+      const list = [];
+      for (let key in index) {
+        list.push({
+          key,
+          ...index[key]
+        });
+      }
+      return list.sort((a, b) => {
+        return b.data[0].mid - a.data[0].mid;
+      });
     }
   },
   methods: {
@@ -142,6 +225,14 @@ export default {
         done();
       };
     }
+  },
+  watch: {
+    fold(newVal) {
+      localStorage.setItem("fold", newVal);
+    }
+  },
+  created() {
+    this.fold = localStorage.getItem("fold") === "true";
   }
 };
 </script>
@@ -150,6 +241,14 @@ export default {
   margin: 10px 20px;
   position: relative;
   .search {
+  }
+  .search-blur {
+    overflow: hidden;
+    width: 110px;
+    border-right: 1px solid var(--accents-2);
+  }
+  .fold {
+    margin-left: 10px;
   }
   .setting {
     position: absolute;
@@ -213,6 +312,56 @@ export default {
       }
       .handle .zi-tooltip {
         float: left;
+      }
+    }
+  }
+}
+.list-fold {
+  padding: 0 20px;
+  .list-fold-group {
+    border-bottom: 1px solid #000;
+    .title {
+      cursor: pointer;
+    }
+    .list-fold-item-desp {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .expend {
+      overflow: unset;
+      text-overflow: unset;
+      white-space: unset;
+      word-break: break-all;
+    }
+    .list-fold-item-li {
+      cursor: pointer;
+      .desp {
+        display: flex;
+        .list-fold-item-desp {
+          flex: 1;
+        }
+        .list-fold-item-time {
+          float: right;
+          font-size: 15px;
+          color: #555;
+        }
+      }
+      .footer {
+        align-items: center;
+        .handle {
+          height: 24px;
+        }
+        .handle > * {
+          margin: 0 5px;
+        }
+        svg {
+          width: 20px;
+        }
+        .handle .zi-tooltip {
+          float: left;
+        }
       }
     }
   }

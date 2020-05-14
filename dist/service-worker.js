@@ -1,4 +1,4 @@
-importScripts("precache-manifest.b39f038a7d19378a11117d8a3a770b1f.js");
+importScripts("precache-manifest.4079a1111e37c9d23be4b9de5c200e42.js");
 
 importScripts(
   "https://cdn.jsdelivr.net/npm/workbox-sw@4.3.1/build/workbox-sw.min.js",
@@ -106,19 +106,19 @@ self.addEventListener("push", function(e) {
   let promise = new Promise(async (resolve, reject) => {
     const list = await clients.matchAll();
     if (payload.cmd === "MESSAGE") {
+      const storage = new IndexedDBStorage();
+      await storage.open("config");
       await self.registration.showNotification(payload.data.message.text, {
         body: payload.data.message.desp,
         icon: "./img/icons/128.png",
         badge: "./img/icons/128.png",
         data: {
-          url: "./",
           scheme: payload.data.message.extra.scheme,
           inPage: list.length > 0,
+          basehref: await storage.getItem("basehref"),
         },
       });
     }
-    const storage = new IndexedDBStorage();
-    await storage.open("config");
     let httpurl = await storage.getItem("httpurl");
     let auth = await storage.getItem("auth");
     if (httpurl) {
@@ -139,9 +139,15 @@ self.addEventListener("notificationclick", function(e) {
   e.notification.close();
   // 打开网页
   if (e.notification.data.scheme) {
-    e.waitUntil(clients.openWindow(e.notification.data.scheme));
+    e.waitUntil(
+      clients.openWindow(
+        `${e.notification.data.basehref}?scheme=${encodeURI(
+          e.notification.data.scheme
+        )}`
+      )
+    );
   } else if (!e.notification.data.inPage) {
-    e.waitUntil(clients.openWindow(e.notification.data.url));
+    e.waitUntil(clients.openWindow(e.notification.data.basehref));
   }
 });
 

@@ -78,6 +78,7 @@ export class MpushClient {
             auth: packet.data.auth,
             token: this.config.token,
             httpurl: this.config.httpurl,
+            basehref: `${location.origin}${location.pathname}`,
           });
           this.applicationServerKey = packet.data.fcmServerKey;
           this.toast("success", "websocket连接成功");
@@ -134,7 +135,10 @@ export class MpushClient {
           let newKey =
             this.applicationServerKey.replace(/-/g, "+").replace(/_/g, "/") +
             "=";
-          if (oldKey === newKey) {
+          if (
+            oldKey === newKey &&
+            this.config.name === localStorage.getItem("fcm-name")
+          ) {
             return;
           } else {
             this.toast("info", "重新注册FCM");
@@ -149,6 +153,7 @@ export class MpushClient {
             applicationServerKey: base64ToUint8Array(this.applicationServerKey),
           }
         );
+        localStorage.setItem("fcm-name", this.config.name);
         this.send({
           cmd: "REGISTER_FCM",
           data: newPushSubscription,

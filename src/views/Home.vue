@@ -30,7 +30,7 @@
           <zi-row class="footer" v-if="expend === item.mid">
             <div class="handle">
               <copy @click="copyHandle(item.message)" />
-              <a target="_blank" :href="item.message.extra.scheme" v-if="item.message.extra.scheme">
+              <a :href="item.message.extra.scheme" v-if="item.message.extra.scheme">
                 <linkIcon />
               </a>
               <zi-tooltip>
@@ -79,11 +79,7 @@
             <zi-row class="footer" v-if="expend === item.mid">
               <div class="handle">
                 <copy @click="copyHandle(item.message)" />
-                <a
-                  target="_blank"
-                  :href="item.message.extra.scheme"
-                  v-if="item.message.extra.scheme"
-                >
+                <a :href="item.message.extra.scheme" v-if="item.message.extra.scheme">
                   <linkIcon />
                 </a>
                 <zi-tooltip>

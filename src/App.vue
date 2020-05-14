@@ -23,6 +23,17 @@ export default {
       );
     }
   },
+  beforeCreate() {
+    const queryStr = location.search.slice(1);
+    const querys = queryStr.split("&");
+    for (const query of querys) {
+      const [key, value] = query.split("=");
+      if (key === "scheme") {
+        location.href = decodeURI(value);
+        return;
+      }
+    }
+  },
   async created() {
     const messages = [];
     this.$messagesdb

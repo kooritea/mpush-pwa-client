@@ -13,6 +13,7 @@ import "@zeit-ui/vue/dist/zeit-ui.css";
 import "@zeit-ui/themes/index.css";
 import "@zeit-ui/themes/dark.css";
 import { install } from "@zeit-ui/vue-icons";
+
 Vue.use(ZeitUI);
 install(Vue);
 
@@ -34,7 +35,7 @@ if (window.PushManager == null || navigator.serviceWorker == null) {
   new Vue({
     router,
     store,
-    render: function (h) {
+    render: function(h) {
       return h(App);
     },
   }).$mount("#app");
@@ -44,7 +45,7 @@ if (window.PushManager == null || navigator.serviceWorker == null) {
     new Vue({
       router,
       store,
-      render: function (h) {
+      render: function(h) {
         return h(App);
       },
     }).$mount("#app");

@@ -47,13 +47,11 @@
       </li>
     </ul>
     <ul class="list-fold" v-else>
-      <li
-        class="list-fold-group"
-        v-for="(group,index) in showListFold"
-        :key="group.key"
-        @click="foldExpend === group.key ? foldExpend = null : foldExpend = group.key"
-      >
-        <div class="title">
+      <li class="list-fold-group" v-for="(group,index) in showListFold" :key="group.key">
+        <div
+          class="title"
+          @click="foldExpend === group.key ? foldExpend = null : foldExpend = group.key"
+        >
           <span class="text">{{group.key}}</span>
         </div>
         <ul class="list-fold-item-ul" v-if="foldExpend === group.key">

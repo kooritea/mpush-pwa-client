@@ -51,7 +51,7 @@
         class="list-fold-group"
         v-for="(group,index) in showListFold"
         :key="group.key"
-        @click="foldExpend = group.key"
+        @click="foldExpend === group.key ? foldExpend = null : foldExpend = group.key"
       >
         <div class="title">
           <span class="text">{{group.key}}</span>

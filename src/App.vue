@@ -54,7 +54,8 @@ export default {
         (this.$store.state.messages[0] &&
           packet.mid !== this.$store.state.messages[0].mid)
       ) {
-        this.$messagesdb.put(packet.mid, packet);
+        this.$messagesdb.put(packet.mid, JSON.parse(JSON.stringify(packet)));
+        packet.isNew = true;
         this.$store.commit({
           type: "putMessage",
           message: packet

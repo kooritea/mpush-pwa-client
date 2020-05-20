@@ -4,20 +4,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "IndexeddbStorage.js"
   },
   {
-    "revision": "ceb1ac5e7984da5ff3b2",
-    "url": "css/app.8abc8d59.css"
+    "revision": "ea4fddbf771131a33dcc",
+    "url": "css/app.856734a6.css"
   },
   {
     "revision": "6d9955d038f37514c087",
     "url": "css/chunk-vendors.6939f207.css"
   },
   {
-    "revision": "d1d1b03939026005dcf00a447233f94a",
+    "revision": "6a7ed3fb37b4d2519aa19531687dea14",
     "url": "index.html"
   },
   {
-    "revision": "ceb1ac5e7984da5ff3b2",
-    "url": "js/app.07babc64.js"
+    "revision": "ea4fddbf771131a33dcc",
+    "url": "js/app.6b8215a0.js"
   },
   {
     "revision": "6d9955d038f37514c087",

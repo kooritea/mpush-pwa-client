@@ -19,7 +19,13 @@
       </router-link>
     </div>
     <ul class="list" v-if="search || !fold || focusSearch">
-      <li class="list-item" v-for="item in showList" :key="item.mid" @click="expend = item.mid">
+      <li
+        class="list-item"
+        v-for="item in showList"
+        :key="item.mid"
+        @click="expend = item.mid"
+        :class="{isNew:item.isNew}"
+      >
         <div class="title" :class="{'title-expend':expend === item.mid}">
           <span class="text">{{item.message.text || date(Number(item.mid))}}</span>
         </div>
@@ -47,7 +53,12 @@
       </li>
     </ul>
     <ul class="list-fold" v-else>
-      <li class="list-fold-group" v-for="(group,index) in showListFold" :key="group.key">
+      <li
+        class="list-fold-group"
+        v-for="(group,index) in showListFold"
+        :key="group.key"
+        :class="{hasNew:group.hasNew}"
+      >
         <div
           class="title"
           @click="foldExpend === group.key ? foldExpend = null : foldExpend = group.key"
@@ -60,6 +71,7 @@
             class="list-fold-item-li"
             :key="item.mid"
             @click="expend = item.mid"
+            :class="{isNew:item.isNew}"
           >
             <div class="desp">
               <div
@@ -255,6 +267,21 @@ export default {
 
 .list {
   padding: 0 20px;
+  * {
+    color: #aaa;
+  }
+  .isNew {
+    .title {
+      .text {
+        color: #000;
+      }
+    }
+    .desp {
+      * {
+        color: #000;
+      }
+    }
+  }
   .list-item {
     border-bottom: 1px solid #000;
     cursor: pointer;
@@ -319,6 +346,23 @@ export default {
 }
 .list-fold {
   padding: 0 20px;
+  * {
+    color: #aaa;
+  }
+  .hasNew {
+    .title {
+      .text {
+        color: #000;
+      }
+    }
+    .isNew {
+      .desp {
+        * {
+          color: #000;
+        }
+      }
+    }
+  }
   .list-fold-group {
     border-bottom: 1px solid #000;
     .title {

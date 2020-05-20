@@ -290,7 +290,9 @@ export default {
     .markdown-body {
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
       margin-bottom: 10px;
     }
     .expend {
@@ -298,6 +300,8 @@ export default {
       text-overflow: unset;
       white-space: unset;
       word-break: break-all;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: unset;
     }
     .footer {
       align-items: center;
@@ -306,6 +310,9 @@ export default {
       }
       .handle .zi-tooltip {
         float: left;
+      }
+      svg {
+        width: 15px;
       }
     }
   }
@@ -320,7 +327,9 @@ export default {
     .list-fold-item-desp {
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
       flex: 1;
     }
     .expend {
@@ -328,6 +337,9 @@ export default {
       text-overflow: unset;
       white-space: unset;
       word-break: break-all;
+      display: block;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: unset;
     }
     .list-fold-item-li {
       cursor: pointer;
@@ -351,7 +363,7 @@ export default {
           margin: 0 5px;
         }
         svg {
-          width: 20px;
+          width: 15px;
         }
         .handle .zi-tooltip {
           float: left;

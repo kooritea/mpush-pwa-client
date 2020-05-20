@@ -22,7 +22,6 @@
       <li class="list-item" v-for="item in showList" :key="item.mid" @click="expend = item.mid">
         <div class="title" :class="{'title-expend':expend === item.mid}">
           <span class="text">{{item.message.text || date(Number(item.mid))}}</span>
-          <span class="time">{{Number(item.mid) | date}}</span>
         </div>
         <div class="desp">
           <div class="markdown-body" v-if="expend !== item.mid">{{item.message.desp}}</div>
@@ -38,6 +37,7 @@
                 <div slot="content" style="text-align:left">
                   <p>from: {{item.from.method}} {{item.from.name}}</p>
                   <p>target: {{item.sendType === 'personal'?"":"Group "}}{{item.target}}</p>
+                  <p>time: {{Number(item.mid) | date}}</p>
                 </div>
               </zi-tooltip>
               <trash @click="trash(item)" />
@@ -71,7 +71,6 @@
                 v-else
                 v-html="markdown(item.message.desp) || '无正文'"
               ></div>
-              <span class="list-fold-item-time">{{Number(item.mid) | date}}</span>
               <div style="clear:both"></div>
             </div>
             <zi-row class="footer" v-if="expend === item.mid">
@@ -85,6 +84,7 @@
                   <div slot="content" style="text-align:left">
                     <p>from: {{item.from.method}} {{item.from.name}}</p>
                     <p>target: {{item.sendType === 'personal'?"":"Group "}}{{item.target}}</p>
+                    <p>time: {{Number(item.mid) | date}}</p>
                   </div>
                 </zi-tooltip>
                 <trash @click="trash(item)" />

@@ -1,4 +1,4 @@
-importScripts("precache-manifest.6b6ac0a391e8961579833b69c9f7acec.js");
+importScripts("precache-manifest.39964f3b1095435cd67cfb91802b19e5.js");
 
 importScripts(
   "https://cdn.jsdelivr.net/npm/workbox-sw@4.3.1/build/workbox-sw.min.js",

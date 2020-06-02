@@ -22,7 +22,7 @@ Vue.filter("markdown", function(value) {
 });
 
 Vue.filter("date", function(value) {
-  return format(value, "yyyy-MM-dd HH:mm:ss");
+  return format(value, "MM-dd HH:mm:ss");
 });
 
 function format(time, format) {

@@ -63,7 +63,7 @@
           class="title"
           @click="foldExpend === group.key ? foldExpend = null : foldExpend = group.key"
         >
-          <span class="text">{{group.key}}</span>
+          <span class="text">{{group.key?group.key:'无标题'}}</span>
         </div>
         <ul class="list-fold-item-ul" v-if="foldExpend === group.key">
           <li
@@ -96,10 +96,10 @@
                   <div slot="content" style="text-align:left">
                     <p>from: {{item.from.method}} {{item.from.name}}</p>
                     <p>target: {{item.sendType === 'personal'?"":"Group "}}{{item.target}}</p>
-                    <p>time: {{Number(item.mid) | date}}</p>
                   </div>
                 </zi-tooltip>
                 <trash @click="trash(item)" />
+                <span class="time">{{Number(item.mid) | date}}</span>
               </div>
             </zi-row>
           </li>
@@ -332,14 +332,16 @@ export default {
     }
     .footer {
       align-items: center;
-      .handle > * {
-        margin: 0 5px;
-      }
-      .handle .zi-tooltip {
-        float: left;
-      }
-      svg {
-        width: 15px;
+      .handel{
+        &>* {
+          margin: 0 5px;
+        }
+        .zi-tooltip {
+          float: left;
+        }
+        svg {
+          width: 15px;
+        }
       }
     }
   }
@@ -402,15 +404,21 @@ export default {
         align-items: center;
         .handle {
           height: 24px;
-        }
-        .handle > * {
-          margin: 0 5px;
-        }
-        svg {
-          width: 15px;
-        }
-        .handle .zi-tooltip {
-          float: left;
+          width: 100%;
+          display: flex;
+          .zi-tooltip {
+            float: left;
+          }
+          & > * {
+            margin: 0 5px;
+          }
+          svg {
+            width: 15px;
+          }
+          .time{
+            text-align: right;
+            flex: 1;
+          }
         }
       }
     }

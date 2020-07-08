@@ -23,14 +23,14 @@
         FCM推送
         <zi-toggle v-model="fcm"></zi-toggle>
       </zi-row>
-      <zi-row v-if="fcm">
+      <!-- <zi-row v-if="fcm">
         <zi-input
           class="input-handle"
           v-model="httpurl"
           placeholder="如果服务端打开了fcm.comfirmMode则这项必填"
           prefix-label="HttpURL"
         ></zi-input>
-      </zi-row>
+      </zi-row> -->
       <zi-button class="save" @click="save()" shadow type="success">应用</zi-button>
     </div>
   </div>

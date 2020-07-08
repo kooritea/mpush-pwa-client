@@ -5,18 +5,20 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    messages: []
+    messages: [],
+    offset: 0
   },
   mutations: {
-    initMessages(state, payload) {
-      this.state.messages = payload.messages;
+    loadMessages(state, payload) {
+      state.messages.splice(state.offset, 0, payload.message);
     },
     putMessage(state, payload) {
-      this.state.messages.unshift(payload.message);
+      state.messages.unshift(payload.message);
+      state.offset++
     },
     deleteMessage(state, payload) {
-      this.state.messages.splice(
-        this.state.messages.indexOf(payload.message),
+      state.messages.splice(
+        state.messages.indexOf(payload.message),
         1
       );
     }

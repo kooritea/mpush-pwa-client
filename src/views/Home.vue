@@ -277,7 +277,7 @@ export default {
       }
     }
     .desp {
-      * {
+      .markdown-body {
         color: #000;
       }
     }
@@ -332,12 +332,13 @@ export default {
     }
     .footer {
       align-items: center;
-      .handel{
+      .handle{
         &>* {
           margin: 0 5px;
         }
         .zi-tooltip {
           float: left;
+          display: inline;
         }
         svg {
           width: 15px;
@@ -408,6 +409,7 @@ export default {
           display: flex;
           .zi-tooltip {
             float: left;
+            display: inline;
           }
           & > * {
             margin: 0 5px;

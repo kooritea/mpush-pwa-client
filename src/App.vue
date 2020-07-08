@@ -35,18 +35,16 @@ export default {
     }
   },
   async created() {
-    const messages = [];
     this.$messagesdb
       .createReadStream()
       .on("data", data => {
-        messages.push(data.value);
+        this.$store.commit({
+          type: "loadMessages",
+          message: data.value
+        });
       })
       .on("end", () => {
-        this.$store.commit({
-          type: "initMessages",
-          messages: messages.reverse()
-        });
-        this.createMpushClient();
+
       });
     this.$ebus.$on("MESSAGE", packet => {
       if (
@@ -62,6 +60,7 @@ export default {
         });
       }
     });
+    this.createMpushClient();
     this.$ebus.$on("worker-set-data", packet => {
       navigator.serviceWorker.controller &&
         navigator.serviceWorker.controller.postMessage({

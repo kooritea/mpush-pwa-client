@@ -5,16 +5,14 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    messages: [],
-    offset: 0
+    messages: []
   },
   mutations: {
     loadMessages(state, payload) {
-      state.messages.splice(state.offset, 0, payload.message);
+      state.messages.push(payload.message);
     },
     putMessage(state, payload) {
       state.messages.unshift(payload.message);
-      state.offset++
     },
     deleteMessage(state, payload) {
       state.messages.splice(

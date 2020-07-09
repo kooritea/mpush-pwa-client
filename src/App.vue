@@ -36,7 +36,9 @@ export default {
   },
   async created() {
     this.$messagesdb
-      .createReadStream()
+      .createReadStream({
+        reverse: true
+      })
       .on("data", data => {
         this.$store.commit({
           type: "loadMessages",

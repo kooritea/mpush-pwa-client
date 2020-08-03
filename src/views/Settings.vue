@@ -47,28 +47,28 @@ export default {
       name: "",
       group: "",
       fcm: false,
-      httpurl: ""
+      // httpurl: ""
     };
   },
   methods: {
     async save() {
-      if (this.httpurl) {
-        const test = await this.testHTTPurl();
-        if (test !== true) {
-          this.$Toast.show({
-            type: "error",
-            text: `http接口无法访问:${test.message}`
-          });
-          return;
-        }
-      }
+      // if (this.httpurl) {
+      //   const test = await this.testHTTPurl();
+      //   if (test !== true) {
+      //     this.$Toast.show({
+      //       type: "error",
+      //       text: `http接口无法访问:${test.message}`
+      //     });
+      //     return;
+      //   }
+      // }
       if (this.url && this.name) {
         localStorage.setItem("url", this.url);
         localStorage.setItem("token", this.token);
         localStorage.setItem("name", this.name);
         localStorage.setItem("group", this.group);
         localStorage.setItem("fcm", this.fcm ? "true" : "false");
-        localStorage.setItem("httpurl", this.httpurl);
+        // localStorage.setItem("httpurl", this.httpurl);
         this.$Toast.show({
           type: "success",
           text: `保存成功`
@@ -79,7 +79,7 @@ export default {
           name: this.name,
           group: this.group,
           fcm: this.fcm,
-          httpurl: this.httpurl
+          // httpurl: this.httpurl
         });
       } else {
         this.$Toast.show({
@@ -88,25 +88,25 @@ export default {
         });
       }
     },
-    testHTTPurl() {
-      return new Promise(resolve => {
-        fetch(this.httpurl, {
-          body: JSON.stringify({
-            cmd: "TEST_HTTP"
-          }),
-          method: "POST",
-          headers: {
-            "content-type": "application/json"
-          }
-        })
-          .then(() => {
-            resolve(true);
-          })
-          .catch(e => {
-            resolve(e);
-          });
-      });
-    }
+    // testHTTPurl() {
+    //   return new Promise(resolve => {
+    //     fetch(this.httpurl, {
+    //       body: JSON.stringify({
+    //         cmd: "TEST_HTTP"
+    //       }),
+    //       method: "POST",
+    //       headers: {
+    //         "content-type": "application/json"
+    //       }
+    //     })
+    //       .then(() => {
+    //         resolve(true);
+    //       })
+    //       .catch(e => {
+    //         resolve(e);
+    //       });
+    //   });
+    // }
   },
   created() {
     this.url = localStorage.getItem("url") || "";
@@ -114,7 +114,7 @@ export default {
     this.name = localStorage.getItem("name") || "";
     this.group = localStorage.getItem("group") || "";
     this.fcm = localStorage.getItem("fcm") === "true";
-    this.httpurl = localStorage.getItem("httpurl") || "";
+    // this.httpurl = localStorage.getItem("httpurl") || "";
   }
 };
 </script>

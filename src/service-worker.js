@@ -77,17 +77,33 @@ function postData(url, data) {
     referrer: "no-referrer", // *client, no-referrer
   }).then((response) => response.json()); // parses response to JSON
 }
-self.addEventListener("message", function(event) {
+self.addEventListener("message", async function(event) {
   const promise = new Promise(async (resolve, reject) => {
     const packet = event.data;
+    const storage = new IndexedDBStorage();
+    await storage.open("config");
     switch (packet.cmd) {
       case "set-data":
-        const storage = new IndexedDBStorage();
-        await storage.open("config");
         for (let key in packet.data) {
           await storage.setItem(key, packet.data[key]);
         }
         break;
+      case 'push':
+        try{
+          const list = await clients.matchAll();
+          self.registration.showNotification(packet.data.message.text, {
+            body: packet.data.message.desp,
+            icon: "./img/icons/128.png",
+            badge: "./img/icons/128.png",
+            data: {
+              scheme: packet.data.message.extra.scheme,
+              inPage: list.length > 0,
+              basehref: await storage.getItem("basehref"),
+            },
+          });
+        }catch(e){
+          console.log(e)
+        }
     }
     resolve();
   });
@@ -117,17 +133,17 @@ self.addEventListener("push", function(e) {
         },
       });
     }
-    let httpurl = await storage.getItem("httpurl");
-    let auth = await storage.getItem("auth");
-    if (httpurl) {
-      const res = await postData(httpurl, {
-        cmd: "MESSAGE_FCM_CALLBACK",
-        auth,
-        data: {
-          mid: payload.data.mid,
-        },
-      });
-    }
+    // let httpurl = await storage.getItem("httpurl");
+    // let auth = await storage.getItem("auth");
+    // if (httpurl) {
+    //   const res = await postData(httpurl, {
+    //     cmd: "MESSAGE_FCM_CALLBACK",
+    //     auth,
+    //     data: {
+    //       mid: payload.data.mid,
+    //     },
+    //   });
+    // }
     resolve();
   });
   e.waitUntil(promise);

@@ -77,7 +77,7 @@ export class MpushClient {
           this.ebus.$emit("worker-set-data", {
             auth: packet.data.auth,
             token: this.config.token,
-            httpurl: this.config.httpurl,
+            // httpurl: this.config.httpurl,
             basehref: `${location.origin}${location.pathname}`,
           });
           this.applicationServerKey = packet.data.fcmServerKey;
@@ -124,6 +124,7 @@ export class MpushClient {
           "error",
           `当前浏览器不支持消息通知:${typeof window.PushManager} ${typeof navigator.serviceWorker}`
         );
+        localStorage.setItem("fcm-open", 'false');
         return;
       }
       let pushSubscription = await this.registration.pushManager.getSubscription();
@@ -158,13 +159,16 @@ export class MpushClient {
           cmd: "REGISTER_FCM",
           data: newPushSubscription,
         });
+        localStorage.setItem("fcm-open", 'true');
       } else {
         if (pushSubscription) {
           pushSubscription.unsubscribe();
         }
+        localStorage.setItem("fcm-open", 'false');
       }
     } catch (e) {
       this.toast("error", `注册FCM出错: ${e}`);
+      localStorage.setItem("fcm-open", 'false');
       console.log(e);
     }
   }

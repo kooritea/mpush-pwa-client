@@ -17,7 +17,7 @@ export default {
           name: localStorage.getItem("name") || "",
           group: localStorage.getItem("group") || "",
           fcm: localStorage.getItem("fcm") === "true",
-          httpurl: localStorage.getItem("httpurl") || ""
+          // httpurl: localStorage.getItem("httpurl") || ""
         },
         this.$ebus
       );
@@ -59,6 +59,12 @@ export default {
         this.$store.commit({
           type: "putMessage",
           message: packet
+        });
+      }
+      if(localStorage.getItem("fcm-open") !== 'true'){
+        navigator.serviceWorker.controller.postMessage({
+          cmd: "push",
+          data: packet
         });
       }
     });

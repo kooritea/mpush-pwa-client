@@ -159,6 +159,10 @@ export class MpushClient {
           cmd: "REGISTER_FCM",
           data: newPushSubscription,
         });
+        this.send({
+          cmd: "REGISTER_WEBPUSH",
+          data: newPushSubscription,
+        });
         localStorage.setItem("fcm-open", 'true');
       } else {
         if (pushSubscription) {

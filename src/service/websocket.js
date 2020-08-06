@@ -80,7 +80,7 @@ export class MpushClient {
             // httpurl: this.config.httpurl,
             basehref: `${location.origin}${location.pathname}`,
           });
-          this.applicationServerKey = packet.data.fcmServerKey;
+          this.applicationServerKey = packet.data.fcmServerKey || packet.data.webpushPublicKey;
           this.toast("success", "websocket连接成功");
           this.registerFCM();
         } else {
